@@ -26,6 +26,7 @@ using passbolt.Services.LocalFolder;
 using passbolt.Services.NavigationService;
 using passbolt.Services.RbacService;
 using passbolt.Services.WebviewService;
+using passbolt.Services.WindowsHello;
 using passbolt.Utils;
 using System;
 using System.Collections.Generic;
@@ -52,6 +53,7 @@ namespace passbolt.Models.Messaging
             this.rbacService = new RbacService();
             cookiesManager = CookiesManager.Instance;
             pendingMessages = new List<IPC>();
+            WindowsHelloCoordinator.Instance.Attach(background);
         }
 
         /// <summary>
@@ -60,10 +62,19 @@ namespace passbolt.Models.Messaging
         /// <param name="ipc"></param>
         public async override void ProceedMessage(IPC ipc)
         {
+            //Responses to the requests sent by the Windows Hello coordinator are not forwarded to the rendered webview
+            if (WindowsHelloCoordinator.Instance.HandleBackgroundResponse(ipc))
+            {
+                return;
+            }
+
             var accountMetaData = await this.credentialLockerService.GetAccountMetadata();
 
             switch (ipc.topic)
             {
+                case AllowedTopics.BACKGROUND_AUTH_LISTENING:
+                    await WindowsHelloCoordinator.Instance.OnAuthScreenReady();
+                    break;
                 case AllowedTopics.BACKGROUND_READY:
                     //It means we have a single navigation of the Background webview
                     if(this.pendingRequestId != null)
@@ -118,6 +129,7 @@ namespace passbolt.Models.Messaging
                     // Allow navigation for MFA authentication
                     RenderedNavigationService.Instance.AllowMfaUrls(accountMetaData.domain);
                     rendered.Source = new Uri(accountMetaData.domain + $"/mfa/verify/{message.provider}?redirect=/");
+                    await WindowsHelloCoordinator.Instance.OnPassphraseVerified(message.passphrase);
                     break;
                 case AuthImportTopics.SAVE_ACCOUNT:
                     this.currentIndexBackground = "index-auth.html";
@@ -176,7 +188,9 @@ namespace passbolt.Models.Messaging
                     break;
                 case AuthenticationTopics.AFTER_LOGIN:
                     passphrase = (string)ipc.message;
+                    var verifiedPassphrase = passphrase;
                     await RedirectToWorkspace();
+                    await WindowsHelloCoordinator.Instance.OnPassphraseVerified(verifiedPassphrase);
                     break;
                 case SecretTopics.PASSPHRASE_REQUEST:
                 case ProgressTopics.PROGRESSCLOSEDIALOG:
@@ -233,6 +247,7 @@ namespace passbolt.Models.Messaging
             await localFolderService.CreateBackgroundIndex("index-workspace.html", "background-workspace", accountMetaData.domain);
             var configuration = await credentialLockerService.GetApplicationConfiguration();
             background.Source = new Uri(UriBuilderHelper.BuildHostUri(configuration.backgroundUrl, "/Background/index-workspace.html"));
+            WindowsHelloCoordinator.Instance.OnLoggedIn();
         }
 
         /// <summary>

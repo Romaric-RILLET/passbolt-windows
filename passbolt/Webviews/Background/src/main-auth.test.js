@@ -23,6 +23,7 @@ import GetLegacyAccountService from "passbolt-browser-extension/src/all/backgrou
 import {v4 as uuid} from 'uuid';
 import {defaultApiClientOptions} from "passbolt-styleguide/src/shared/lib/apiClient/apiClientOptions.test.data";
 import BuildApiClientOptionsService from "passbolt-browser-extension/src/all/background_page/service/account/buildApiClientOptionsService";
+import {BACKGROUND_AUTH_LISTENING} from "./enumerations/appEventEnumeration";
 
 describe("Main authentication class", () => {
   let main;
@@ -52,5 +53,15 @@ describe("Main authentication class", () => {
     expect(DesktopEvents.listen).toHaveBeenCalledWith(main.worker, defaultApiClientOptions(), mockedAccount);
     expect(LocaleEvents.listen).toHaveBeenCalledWith(main.worker);
     expect(SiteSettingsEvents.listen).toHaveBeenCalledWith(main.worker, defaultApiClientOptions());
+  });
+
+  it('should notify the main process once the authentication events are listened', async() => {
+    expect.assertions(1);
+
+    main = new Main();
+    jest.spyOn(main.worker.port, "emit").mockImplementation(() => {});
+    await main.listen();
+
+    expect(main.worker.port.emit).toHaveBeenCalledWith(BACKGROUND_AUTH_LISTENING);
   });
 });

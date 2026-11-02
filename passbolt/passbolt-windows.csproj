@@ -273,6 +273,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Services\WebviewService\WebviewService.cs" />
+    <Compile Include="Services\WindowsHello\WindowsHelloCoordinator.cs" />
+    <Compile Include="Services\WindowsHello\WindowsHelloService.cs" />
     <PRIResource Include="Strings\ru-RU\Resources.resw" />
     <PRIResource Include="Strings\sv-SE\Resources.resw" />
     <PRIResource Include="Strings\ro-RO\Resources.resw" />

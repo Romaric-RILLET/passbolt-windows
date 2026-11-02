@@ -14,5 +14,19 @@
              NavigationStarting="Rendered_NavigationStarting" NavigationCompleted="Rendered_NavigationCompleted" />
         <controls:WebView2 x:Name="Background" Source="about:blank"   Visibility="Collapsed"
              NavigationStarting="Background_NavigationStarting" NavigationCompleted="Background_NavigationCompleted"/>
+        <!-- Windows Hello unlock and settings, displayed over the authentication screen -->
+        <SplitButton x:Name="HelloButton" Visibility="Collapsed" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="16"
+             Click="HelloButton_Click">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <FontIcon Glyph="&#xE928;" FontSize="16"/>
+                <TextBlock x:Name="HelloButtonText"/>
+            </StackPanel>
+            <SplitButton.Flyout>
+                <MenuFlyout Placement="TopEdgeAlignedRight" Opening="HelloFlyout_Opening">
+                    <MenuFlyoutItem x:Name="HelloDisableItem" Click="HelloDisable_Click"/>
+                    <MenuFlyoutItem x:Name="HelloOfferItem" Click="HelloOffer_Click"/>
+                </MenuFlyout>
+            </SplitButton.Flyout>
+        </SplitButton>
     </Grid>
 </Page>

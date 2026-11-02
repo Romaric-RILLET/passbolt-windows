@@ -120,4 +120,70 @@
   <data name="AppDisplayName" xml:space="preserve">
     <value>Passbolt</value>
   </data>
+  <data name="Hello_ButtonUnlock" xml:space="preserve">
+    <value>Unlock with Windows Hello</value>
+  </data>
+  <data name="Hello_ButtonNotEnrolled" xml:space="preserve">
+    <value>Windows Hello</value>
+  </data>
+  <data name="Hello_NotEnrolledTitle" xml:space="preserve">
+    <value>Windows Hello is not enabled</value>
+  </data>
+  <data name="Hello_NotEnrolledContent" xml:space="preserve">
+    <value>Sign in once with your passphrase, you will then be offered to unlock passbolt with Windows Hello.</value>
+  </data>
+  <data name="Hello_EnrollTitle" xml:space="preserve">
+    <value>Unlock with Windows Hello?</value>
+  </data>
+  <data name="Hello_EnrollContent" xml:space="preserve">
+    <value>Your passphrase will be encrypted with a key protected by Windows Hello on this device. Next time, you will be able to unlock passbolt with your face, fingerprint or PIN.</value>
+  </data>
+  <data name="Hello_UpdateTitle" xml:space="preserve">
+    <value>Update Windows Hello?</value>
+  </data>
+  <data name="Hello_UpdateContent" xml:space="preserve">
+    <value>The passphrase stored for Windows Hello is no longer valid. Do you want to replace it with the passphrase you just entered?</value>
+  </data>
+  <data name="Hello_EnrollAccept" xml:space="preserve">
+    <value>Enable</value>
+  </data>
+  <data name="Hello_EnrollLater" xml:space="preserve">
+    <value>Not now</value>
+  </data>
+  <data name="Hello_EnrollNever" xml:space="preserve">
+    <value>Don't ask again</value>
+  </data>
+  <data name="Hello_EnrollFailedTitle" xml:space="preserve">
+    <value>Windows Hello</value>
+  </data>
+  <data name="Hello_EnrollFailedContent" xml:space="preserve">
+    <value>Windows Hello could not be enabled. You can try again at your next sign in.</value>
+  </data>
+  <data name="Hello_UnlockFailedTitle" xml:space="preserve">
+    <value>Windows Hello</value>
+  </data>
+  <data name="Hello_UnlockFailedContent" xml:space="preserve">
+    <value>The passphrase could not be unlocked with Windows Hello. Please enter your passphrase.</value>
+  </data>
+  <data name="Hello_StaleTitle" xml:space="preserve">
+    <value>Passphrase changed</value>
+  </data>
+  <data name="Hello_StaleContent" xml:space="preserve">
+    <value>The passphrase stored for Windows Hello is no longer valid, it has probably been changed. Please sign in with your passphrase to update it.</value>
+  </data>
+  <data name="Hello_LoginFailedTitle" xml:space="preserve">
+    <value>Sign in failed</value>
+  </data>
+  <data name="Hello_LoginFailedContent" xml:space="preserve">
+    <value>The sign in with Windows Hello failed. Please enter your passphrase.</value>
+  </data>
+  <data name="Hello_Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Hello_MenuDisable" xml:space="preserve">
+    <value>Disable Windows Hello</value>
+  </data>
+  <data name="Hello_MenuOffer" xml:space="preserve">
+    <value>Offer Windows Hello at next sign in</value>
+  </data>
 </root>

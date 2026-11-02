@@ -21,6 +21,7 @@ import {ConfigEvents} from 'passbolt-browser-extension/src/all/background_page/e
 import {LocaleEvents} from './events/localeEvents';
 import {DesktopEvents} from './events/desktopEvents';
 import DesktopSetAccountController from './controllers/desktopSetAccountController';
+import {BACKGROUND_AUTH_LISTENING} from './enumerations/appEventEnumeration';
 
 /**
  * Represents the main authentication class that sets up an event listener for the `message` event.
@@ -76,6 +77,8 @@ export default class MainAuth {
     LocaleEvents.listen(this.worker);
     DesktopEvents.listen(this.worker, apiClientOptions, account);
     SiteSettingsEvents.listen(this.worker, apiClientOptions);
+    //Notify the main process the authentication events can be received (eg. Windows Hello unlock)
+    this.worker.port.emit(BACKGROUND_AUTH_LISTENING);
   }
 }
 

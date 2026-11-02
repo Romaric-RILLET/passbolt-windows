@@ -14,8 +14,12 @@
 
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
+using System;
+using Windows.ApplicationModel.Resources;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using passbolt.Controllers;
+using passbolt.Services.WindowsHello;
 
 namespace passbolt
 {
@@ -36,6 +40,70 @@ namespace passbolt
             // Initialize the page
             this.InitializeComponent();
             this.mainController = new MainController(webviewRendered, webviewBackground);
+            this.InitHelloOverlay();
+        }
+
+        private HelloUiState helloUiState = new HelloUiState();
+
+        /// <summary>
+        /// Init the Windows Hello overlay labels and bind it to the coordinator state
+        /// </summary>
+        private void InitHelloOverlay()
+        {
+            var loader = ResourceLoader.GetForCurrentView();
+            HelloDisableItem.Text = loader.GetString("Hello_MenuDisable");
+            HelloOfferItem.Text = loader.GetString("Hello_MenuOffer");
+            WindowsHelloCoordinator.Instance.UiStateChanged += this.OnHelloUiStateChanged;
+        }
+
+        private void OnHelloUiStateChanged(HelloUiState state)
+        {
+            var loader = ResourceLoader.GetForCurrentView();
+            this.helloUiState = state;
+            HelloButton.Visibility = state.IsVisible ? Visibility.Visible : Visibility.Collapsed;
+            HelloButton.IsEnabled = !state.IsBusy;
+            HelloButtonText.Text = loader.GetString(state.IsEnrolled ? "Hello_ButtonUnlock" : "Hello_ButtonNotEnrolled");
+        }
+
+        private async void HelloButton_Click(Windows.UI.Xaml.Controls.SplitButton sender, Windows.UI.Xaml.Controls.SplitButtonClickEventArgs args)
+        {
+            if (this.helloUiState.IsEnrolled)
+            {
+                await WindowsHelloCoordinator.Instance.RequestUnlock();
+                return;
+            }
+            var loader = ResourceLoader.GetForCurrentView();
+            WindowsHelloCoordinator.Instance.ResetEnrollmentDeclined();
+            var dialog = new ContentDialog
+            {
+                Title = loader.GetString("Hello_NotEnrolledTitle"),
+                Content = loader.GetString("Hello_NotEnrolledContent"),
+                CloseButtonText = loader.GetString("Hello_Ok"),
+            };
+            try
+            {
+                await dialog.ShowAsync();
+            }
+            catch (Exception)
+            {
+                //Another dialog is already opened
+            }
+        }
+
+        private void HelloFlyout_Opening(object sender, object e)
+        {
+            HelloDisableItem.Visibility = this.helloUiState.IsEnrolled ? Visibility.Visible : Visibility.Collapsed;
+            HelloOfferItem.Visibility = this.helloUiState.IsEnrolled ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        private async void HelloDisable_Click(object sender, RoutedEventArgs e)
+        {
+            await WindowsHelloCoordinator.Instance.Disable();
+        }
+
+        private void HelloOffer_Click(object sender, RoutedEventArgs e)
+        {
+            WindowsHelloCoordinator.Instance.ResetEnrollmentDeclined();
         }
 
         /// <summary>
