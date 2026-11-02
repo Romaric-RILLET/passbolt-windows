@@ -1,0 +1,27 @@
+﻿Passbolt (With Windows Hello By Romaric)
+========================================
+
+Version non officielle de l'application Windows de Passbolt, avec déverrouillage par Windows Hello
+(visage, empreinte ou code PIN). Elle s'installe à côté de l'application officielle du Microsoft Store
+sans la remplacer.
+
+Installation
+------------
+1. Décompressez le dossier.
+2. Double-cliquez sur Install.cmd.
+3. Acceptez la demande administrateur : elle sert uniquement à approuver le certificat de signature
+   de l'application (une seule fois par poste).
+
+Premier lancement
+-----------------
+1. Importez votre kit de compte comme dans l'application officielle
+   (depuis l'extension navigateur : Gérer le compte > Applications de bureau > Télécharger le kit).
+2. Connectez-vous avec votre passphrase.
+3. Acceptez la proposition "Déverrouiller avec Windows Hello".
+
+Aux lancements suivants, Windows Hello est demandé automatiquement. Le bouton "Windows Hello" en bas
+à droite de l'écran de connexion permet de le relancer ou de le désactiver.
+
+Désinstallation
+---------------
+Paramètres > Applications > Applications installées > "Passbolt (With Windows Hello By Romaric)".
