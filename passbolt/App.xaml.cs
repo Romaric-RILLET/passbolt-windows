@@ -13,7 +13,6 @@
  */
 
 using passbolt.Services.LocalFolder;
-using passbolt.Services.WindowsHello;
 using System;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
@@ -76,9 +75,6 @@ namespace passbolt
             {
                 if (rootFrame.Content == null)
                 {
-                    // Windows Hello is prompted before the webviews are created (see WindowsHelloCoordinator.UnlockAtLaunch)
-                    Window.Current.Activate();
-                    await WindowsHelloCoordinator.Instance.UnlockAtLaunch();
                     // When the navigation stack isn't restored navigate to the first page,
                     // configuring the new page by passing required information as a navigation
                     // parameter
