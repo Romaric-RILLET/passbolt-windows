@@ -1,0 +1,51 @@
+# Local Passbolt CE server to reproduce issues with the desktop application.
+# See README.md for the one-time host setup (hosts file, certificate trust, loopback exemption).
+services:
+  db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_RANDOM_ROOT_PASSWORD: "true"
+      MARIADB_DATABASE: passbolt
+      MARIADB_USER: passbolt
+      MARIADB_PASSWORD: passbolt-dev
+    volumes:
+      - database_volume:/var/lib/mysql
+
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8025:8025"
+
+  passbolt:
+    image: passbolt/passbolt:latest-ce
+    restart: unless-stopped
+    depends_on:
+      - db
+      - mailpit
+    environment:
+      APP_FULL_BASE_URL: https://passbolt.test
+      DATASOURCES_DEFAULT_HOST: db
+      DATASOURCES_DEFAULT_USERNAME: passbolt
+      DATASOURCES_DEFAULT_PASSWORD: passbolt-dev
+      DATASOURCES_DEFAULT_DATABASE: passbolt
+      EMAIL_DEFAULT_FROM: no-reply@passbolt.test
+      EMAIL_TRANSPORT_DEFAULT_HOST: mailpit
+      EMAIL_TRANSPORT_DEFAULT_PORT: 1025
+      EMAIL_TRANSPORT_DEFAULT_TLS: "false"
+      PASSBOLT_SSL_FORCE: "true"
+    volumes:
+      - gpg_volume:/etc/passbolt/gpg
+      - jwt_volume:/etc/passbolt/jwt
+      - ./certs/certificate.crt:/etc/ssl/certs/certificate.crt:ro
+      - ./certs/certificate.key:/etc/ssl/certs/certificate.key:ro
+    command: ["/usr/bin/wait-for.sh", "-t", "0", "db:3306", "--", "/docker-entrypoint.sh"]
+    ports:
+      - "127.0.0.1:80:80"
+      - "127.0.0.1:443:443"
+
+volumes:
+  database_volume:
+  gpg_volume:
+  jwt_volume:
