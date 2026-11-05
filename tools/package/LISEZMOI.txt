@@ -1,9 +1,10 @@
-﻿Passbolt (With Windows Hello By Romaric)
-========================================
+﻿Passbolt + Windows Hello (unofficial)
+=====================================
 
-Version non officielle de l'application Windows de Passbolt, avec déverrouillage par Windows Hello
-(visage, empreinte ou code PIN). Elle s'installe à côté de l'application officielle du Microsoft Store
-sans la remplacer.
+Version non officielle de l'application Windows de Passbolt, éditée par Passbolt SA
+(https://github.com/passbolt/passbolt-windows). Romaric RILLET y a seulement ajouté le
+déverrouillage par Windows Hello (visage, empreinte ou code PIN).
+Elle s'installe à côté de l'application officielle du Microsoft Store sans la remplacer.
 
 Installation
 ------------
@@ -24,4 +25,4 @@ Aux lancements suivants, Windows Hello est demandé automatiquement. Le bouton "
 
 Désinstallation
 ---------------
-Paramètres > Applications > Applications installées > "Passbolt (With Windows Hello By Romaric)".
+Paramètres > Applications > Applications installées > "Passbolt + Windows Hello (unofficial)".

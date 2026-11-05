@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    Install Passbolt (With Windows Hello By Romaric).
+    Install Passbolt + Windows Hello (unofficial).
 
 .DESCRIPTION
     Trusts the package signing certificate (Local Machine > Trusted People, requires administrator rights)
@@ -65,4 +65,4 @@ if ($dependencies.Count -gt 0) {
 else {
     Add-AppxPackage -Path $packagePath
 }
-Write-Host "Installation terminée. Lancez 'Passbolt (With Windows Hello By Romaric)' depuis le menu Démarrer."
+Write-Host "Installation terminée. Lancez 'Passbolt + Windows Hello (unofficial)' depuis le menu Démarrer."

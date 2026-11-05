@@ -16,10 +16,14 @@
 param(
     [string]$IdentityName = "RomaricRillet.PassboltWindowsHello",
     [string]$Publisher = "CN=Romaric RILLET",
-    [string]$PublisherDisplayName = "Romaric RILLET",
-    [string]$DisplayName = "Passbolt (With Windows Hello By Romaric)",
+    [string]$PublisherDisplayName = "Romaric RILLET (fork)",
+    [string]$DisplayName = "Passbolt + Windows Hello (unofficial)",
     [string]$Platform = "x64",
-    [string]$TargetPlatformVersion = "10.0.22621.0"
+    [string]$TargetPlatformVersion = "10.0.22621.0",
+    # Package version (4 numbers), defaults to the manifest version. Must increase to update an installed package.
+    [string]$Version,
+    # Skip the webview bundles build (npm ci + webpack), they must then be up to date in Webviews\*\dist.
+    [switch]$SkipWebviewBuild
 )
 
 $ErrorActionPreference = "Stop"
@@ -28,6 +32,24 @@ $projectDir = Join-Path $repoRoot "passbolt"
 $manifestPath = Join-Path $projectDir "Package.appxmanifest"
 $appPackagesDir = Join-Path $projectDir "AppPackages"
 $distributionRoot = Join-Path $appPackagesDir "Distribution"
+
+# --- Webview bundles ------------------------------------------------------------------------------
+# The bundles committed upstream are not kept up to date, Background and Rendered must be built from the same sources.
+if (-not $SkipWebviewBuild) {
+    foreach ($webview in "Background", "Rendered") {
+        Push-Location (Join-Path $projectDir "Webviews\$webview")
+        try {
+            Write-Host "Building the $webview webview..."
+            npm ci --no-audit --no-fund
+            if ($LASTEXITCODE -ne 0) { throw "npm ci failed for $webview" }
+            npm run build
+            if ($LASTEXITCODE -ne 0) { throw "The $webview webview build failed" }
+        }
+        finally {
+            Pop-Location
+        }
+    }
+}
 
 # --- Signing certificate --------------------------------------------------------------------------
 $certificate = Get-ChildItem Cert:\CurrentUser\My |
@@ -53,6 +75,7 @@ try {
     $identity = $manifest.SelectSingleNode("/m:Package/m:Identity", $ns)
     $identity.SetAttribute("Name", $IdentityName)
     $identity.SetAttribute("Publisher", $Publisher)
+    if ($Version) { $identity.SetAttribute("Version", $Version) }
     $version = $identity.GetAttribute("Version")
     $manifest.SelectSingleNode("/m:Package/m:Properties/m:DisplayName", $ns).InnerText = $DisplayName
     $manifest.SelectSingleNode("/m:Package/m:Properties/m:PublisherDisplayName", $ns).InnerText = $PublisherDisplayName
@@ -84,7 +107,7 @@ finally {
 $msix = Get-ChildItem $packageDir -Recurse -Filter "*.msix" | Where-Object { $_.Directory.Name -notlike "Dependencies" -and $_.FullName -notmatch "\\Dependencies\\" } | Select-Object -First 1
 if (-not $msix) { throw "No msix found in $packageDir" }
 
-$distributionDir = Join-Path $distributionRoot "PassboltWindowsHello_$($version)_$Platform"
+$distributionDir = Join-Path $distributionRoot "$($IdentityName)_$($version)_$Platform"
 if (Test-Path $distributionDir) { Remove-Item $distributionDir -Recurse -Force }
 New-Item -ItemType Directory -Force (Join-Path $distributionDir "Dependencies") | Out-Null
 
