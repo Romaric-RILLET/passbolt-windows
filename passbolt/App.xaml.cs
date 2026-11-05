@@ -34,6 +34,9 @@ namespace passbolt
         public App()
         {
             this.InitializeComponent();
+            // Without DirectComposition, WebView2 presents its frames immediately: with it the first frames are displayed
+            // 10 to 20 seconds late in this UWP application (measured with tools/perf, also on the upstream application)
+            System.Environment.SetEnvironmentVariable("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", "--disable-direct-composition");
             this.Suspending += OnSuspending;
             this.UnhandledException += App_UnhandledException;
         }
