@@ -67,6 +67,8 @@ namespace passbolt.Services.WindowsHello
         private bool helloLoginInFlight;
         private bool storedPassphraseIsStale;
         private bool dialogOpen;
+        private string launchPassphrase;
+        private bool launchUnlockAttempted;
 
         /// <summary>
         /// Attach the background webview used to send the IPC messages
@@ -74,6 +76,25 @@ namespace passbolt.Services.WindowsHello
         public void Attach(WebView2 background)
         {
             this.background = background;
+        }
+
+        /// <summary>
+        /// Prompt Windows Hello at launch, before the webviews are created: a webview existing while the Windows Hello
+        /// prompt is displayed stops presenting frames until it receives an input (the screen stays frozen).
+        /// The passphrase is kept until the authentication application is listening.
+        /// </summary>
+        public async Task UnlockAtLaunch()
+        {
+            if (!await this.helloService.IsEnrolled())
+            {
+                return;
+            }
+            this.launchUnlockAttempted = true;
+            var (status, passphrase) = await this.helloService.Unlock();
+            if (status == HelloUnlockStatus.Success)
+            {
+                this.launchPassphrase = passphrase;
+            }
         }
 
         /// <summary>
@@ -85,7 +106,22 @@ namespace passbolt.Services.WindowsHello
             //A new authentication screen cancels any previous login (eg. MFA abandoned)
             this.helloLoginInFlight = false;
             this.pendingRequests.Clear();
+            if (this.launchPassphrase != null)
+            {
+                var passphrase = this.launchPassphrase;
+                this.launchPassphrase = null;
+                this.launchUnlockAttempted = false;
+                this.VerifyServerKeyThenLogin(passphrase);
+                await this.PublishUiState();
+                return;
+            }
             await this.PublishUiState();
+            if (this.launchUnlockAttempted)
+            {
+                //Windows Hello has already been prompted at launch (cancelled), the overlay button allows to retry
+                this.launchUnlockAttempted = false;
+                return;
+            }
             if (!this.storedPassphraseIsStale && await this.helloService.IsEnrolled())
             {
                 await this.TryUnlock();
